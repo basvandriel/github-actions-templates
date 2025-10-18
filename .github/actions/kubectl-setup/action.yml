@@ -1,0 +1,34 @@
+name: 'Kubectl Setup'
+description: 'Set up kubectl with kubeconfig and verify connection'
+
+inputs:
+  kubeconfig_secret:
+    description: 'The name of the secret containing the kubeconfig'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Write kubeconfig
+      run: echo "${{ secrets[inputs.kubeconfig_secret] }}" > kubeconfig
+      shell: bash
+
+    - name: Verify kubectl connection
+      run: kubectl cluster-info
+      shell: bash
+      env:
+        KUBECONFIG: kubeconfig
+
+    - name: Upload kubeconfig
+      uses: actions/upload-artifact@v4
+      with:
+        name: kubeconfig
+        path: kubeconfig

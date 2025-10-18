@@ -15,28 +15,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download kubeconfig
-        uses: actions/download-artifact@v4
+      - uses: ./.github/actions/kubectl-deploy
         with:
-          name: kubeconfig
-          path: .
-
-      - name: Apply Kubernetes manifests
-        env:
-          KUBECONFIG: ${{ github.workspace }}/kubeconfig
-        run: |
-          for manifest in ${{ inputs.manifests }}; do
-            kubectl apply -f "$manifest"
-          done
-        shell: bash
-
-      # If we're not deploying a new deployment with a new version, we may want to restart it to pick up changes
-      - name: Rollout restart deployment
-        env:
-          KUBECONFIG: ${{ github.workspace }}/kubeconfig
-        run: |
-          kubectl rollout restart deployment/${{ inputs.deployment_name }}
-        shell: bash
+          manifests: ${{ inputs.manifests }}
+          deployment_name: ${{ inputs.deployment_name }}
