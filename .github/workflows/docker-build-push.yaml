@@ -34,10 +34,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create BuildKit config
+        if: inputs.allow_unsafe_pushing
+        run: |
+          cat > buildkit.toml <<EOF
+          [registry."${{ inputs.registry }}"]
+            http = true
+            insecure = true
+          EOF
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          buildkitd-config-inline: ${{ inputs.allow_unsafe_pushing && format('[registry."{0}"]\n  http = true\n  insecure = true', inputs.registry) || '' }}
+          buildkitd-config: ${{ inputs.allow_unsafe_pushing && 'buildkit.toml' || '' }}
 
       - name: Build and push
         uses: docker/build-push-action@v5
