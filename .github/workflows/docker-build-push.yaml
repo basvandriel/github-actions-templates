@@ -1,0 +1,51 @@
+name: Docker Build and Push
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      tag:
+        type: string
+        default: latest
+      build_args:
+        type: string
+      platforms:
+        type: string
+        default: linux/amd64
+      context:
+        type: string
+        default: .
+      dockerfile:
+        type: string
+        default: ./Dockerfile
+      allow_unsafe_pushing:
+        type: boolean
+        default: false
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-config-inline: ${{ inputs.allow_unsafe_pushing && format('[registry."{0}"]\n  http = true\n  insecure = true', inputs.registry) || '' }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
+          platforms: ${{ inputs.platforms }}
+          push: true
+          tags: ${{ inputs.registry }}/${{ inputs.image_name }}:${{ inputs.tag }}
+          outputs: type=docker
+          build-args: ${{ inputs.build_args }}
