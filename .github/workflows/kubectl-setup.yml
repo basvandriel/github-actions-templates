@@ -13,4 +13,4 @@ jobs:
     steps:
       - uses: ./.github/actions/kubectl-setup
         with:
-          kubeconfig_secret: ${{ inputs.kubeconfig_secret }}
+          kubeconfig: ${{ secrets[inputs.kubeconfig_secret] }}

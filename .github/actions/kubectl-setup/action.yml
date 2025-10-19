@@ -2,8 +2,8 @@ name: 'Kubectl Setup'
 description: 'Set up kubectl with kubeconfig and verify connection'
 
 inputs:
-  kubeconfig_secret:
-    description: 'The name of the secret containing the kubeconfig'
+  kubeconfig:
+    description: 'The kubeconfig content'
     required: true
 
 runs:
@@ -18,7 +18,7 @@ runs:
         version: 'latest'
 
     - name: Write kubeconfig
-      run: echo "${{ secrets[inputs.kubeconfig_secret] }}" > kubeconfig
+      run: echo "${{ inputs.kubeconfig }}" > kubeconfig
       shell: bash
 
     - name: Verify kubectl connection
